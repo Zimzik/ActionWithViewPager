@@ -6,8 +6,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,8 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
-    private CharSequence[] titles;
-    private Fragment mFragmentA = new FragmentA();
+    private List<CharSequence> titles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,55 +43,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-            if (fragment != null) {
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
-        }
-        super.onPause();
-    }
-
-    @Override
     protected void onResume() {
         initViewPager();
         super.onResume();
     }
 
     private void initTabs() {
-        titles = new CharSequence[]{"Fragment A", "Fragment B", "Fragment C", "Fragment D"};
+        titles = Arrays.asList("Fragment A", "Fragment B", "Fragment C", "Fragment D");
     }
 
     private void initTabsForLandscape() {
-        titles = new CharSequence[]{"Fragment B", "Fragment C", "Fragment D"};
+        titles = Arrays.asList("Fragment B", "Fragment C", "Fragment D");
     }
 
     private void initViews() {
-        mViewPager.setAdapter(
-                new ViewPagerAdapter(
-                        getSupportFragmentManager(),
-                        Arrays.asList(
-                                mFragmentA,
-                                new FragmentB(),
-                                new FragmentC(),
-                                new FragmentD()
-                        ),
-                        titles
-                ));
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(
+                getSupportFragmentManager(),
+                Arrays.asList(
+                        new FragmentA(),
+                        new FragmentB(),
+                        new FragmentC(),
+                        new FragmentD()
+                ),
+                titles
+        );
+
+        mViewPager.setAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
     private void initViewsForLandscape() {
-        mViewPager.setAdapter(
-                new ViewPagerAdapter(
-                        getSupportFragmentManager(),
-                        Arrays.asList(
-                                new FragmentB(),
-                                new FragmentC(),
-                                new FragmentD()
-                        ),
-                        titles
-                ));
+        Log.d(TAG, "initViewsForLandscape: " + mViewPager.getAdapter());
+        ViewPagerAdapter adapter = new ViewPagerAdapter(
+                getSupportFragmentManager(),
+                Arrays.asList(
+                        new FragmentB(),
+                        new FragmentC(),
+                        new FragmentD()
+                ),
+                titles
+        );
+        mViewPager.setAdapter(adapter);
+        mViewPager.getAdapter();
+        adapter.notifyDataSetChanged();
         mTabLayout.setupWithViewPager(mViewPager);
     }
 }
