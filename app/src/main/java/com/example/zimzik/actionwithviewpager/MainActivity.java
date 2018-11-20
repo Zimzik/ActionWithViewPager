@@ -3,11 +3,12 @@ package com.example.zimzik.actionwithviewpager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.LinearLayout;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,16 +19,19 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
     private List<CharSequence> titles;
+    private ViewPagerAdapter mViewPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d(TAG, "onCreate: activity created");
+
         mViewPager = findViewById(R.id.view_pager);
         mTabLayout = findViewById(R.id.tab_layout);
 
-        //initViewPager();
+        initViewPager();
         mViewPager.setOffscreenPageLimit(3);
     }
 
@@ -43,50 +47,89 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        initViewPager();
-        super.onResume();
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        switch (newConfig.orientation) {
+            case Configuration.ORIENTATION_PORTRAIT:
+                Log.d(TAG, "onConfigurationChanged: portrait mode, selected tab: " + mTabLayout.getSelectedTabPosition());
+                initTabs();
+                mViewPagerAdapter.addFragment(new FragmentA(), 0, "Fragment A");
+                mTabLayout.setupWithViewPager(mViewPager);
+                Log.d(TAG, "onConfigurationChanged: portrait mode, selected tab: " + mTabLayout.getSelectedTabPosition());
+                switch (mTabLayout.getSelectedTabPosition()) {
+                    case 0:
+                        selectTab(1);
+                        break;
+                    case 1:
+                        selectTab(2);
+                        break;
+                    case 2:
+                        selectTab(3);
+                        break;
+                }
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                int selectedTab = mTabLayout.getSelectedTabPosition();
+                Log.d(TAG, "onConfigurationChanged: landscape mode, selected tab: " + mTabLayout.getSelectedTabPosition());
+                initTabsForLandscape();
+                mViewPagerAdapter.removeFragment(0);
+                mTabLayout.setupWithViewPager(mViewPager);
+                Log.d(TAG, "onConfigurationChanged: landscape mode, selected tab: " + mTabLayout.getSelectedTabPosition());
+                switch (selectedTab) {
+                    case 1:
+                        selectTab(0);
+                        break;
+                    case 2:
+                        selectTab(1);
+                        break;
+                    case 3:
+                        selectTab(2);
+                        break;
+                }
+                break;
+        }
     }
 
     private void initTabs() {
-        titles = Arrays.asList("Fragment A", "Fragment B", "Fragment C", "Fragment D");
+        titles = new ArrayList<>(Arrays.asList("Fragment A", "Fragment B", "Fragment C", "Fragment D"));
     }
 
     private void initTabsForLandscape() {
-        titles = Arrays.asList("Fragment B", "Fragment C", "Fragment D");
+        titles = new ArrayList<>(Arrays.asList("Fragment B", "Fragment C", "Fragment D"));
     }
 
     private void initViews() {
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(
+        mViewPagerAdapter = new ViewPagerAdapter(
                 getSupportFragmentManager(),
-                Arrays.asList(
+                new ArrayList<>(Arrays.asList(
                         new FragmentA(),
                         new FragmentB(),
                         new FragmentC(),
-                        new FragmentD()
+                        new FragmentD())
                 ),
                 titles
         );
-
-        mViewPager.setAdapter(adapter);
+        mViewPager.setAdapter(mViewPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
     private void initViewsForLandscape() {
         Log.d(TAG, "initViewsForLandscape: " + mViewPager.getAdapter());
-        ViewPagerAdapter adapter = new ViewPagerAdapter(
+        mViewPagerAdapter = new ViewPagerAdapter(
                 getSupportFragmentManager(),
-                Arrays.asList(
+                new ArrayList<>(Arrays.asList(
                         new FragmentB(),
                         new FragmentC(),
                         new FragmentD()
-                ),
+                )),
                 titles
         );
-        mViewPager.setAdapter(adapter);
-        mViewPager.getAdapter();
-        adapter.notifyDataSetChanged();
+        mViewPager.setAdapter(mViewPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
+    }
+
+    private void selectTab(int newPosition) {
+        mTabLayout.post(() -> mTabLayout.getTabAt(newPosition).select());
     }
 }

@@ -32,23 +32,23 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         return mTitles.get(position);
     }
 
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        //assert(0 <= position && position < mFragments.size());
-        FragmentTransaction trans = mFragmentManager.beginTransaction();
-        trans.remove(mFragments.get(position));
-        trans.commit();
-        mFragments.set(position, null);
+    public void addFragment(Fragment fragment, int index, CharSequence title) {
+        mFragments.add(index, fragment);
+        mTitles.add(index, title);
+        Log.d(TAG, "addFragment: new element add, size of element list is: " + mFragments.size());
+        notifyDataSetChanged();
     }
 
-    @NonNull
+    public void removeFragment(int index) {
+        mFragments.remove(index);
+        mTitles.remove(index);
+        Log.d(TAG, "addFragment: new element removed, size of element list is: " + mFragments.size());
+        notifyDataSetChanged();
+    }
+
     @Override
-    public Fragment instantiateItem(ViewGroup container, int position){
-        Fragment fragment = getItem(position);
-        FragmentTransaction trans = mFragmentManager.beginTransaction();
-        trans.add(container.getId(),fragment,"fragment:"+position);
-        trans.commit();
-        return fragment;
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
     }
 
     @Override
